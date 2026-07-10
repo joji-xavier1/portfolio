@@ -565,12 +565,16 @@ a { color: inherit; text-decoration: none; }
 .hero__title .line:nth-child(2) > span { animation-delay: 0.22s; }
 .hero__title .line:nth-child(3) > span { animation-delay: 0.34s; }
 
-/* Hero entrance — supporting elements fade up on load */
-.hero__badge, .hero__lead, .hero__actions, .hero-media, .stat-strip {
+/* Hero entrance — supporting elements fade up on load.
+   NB: animate #heroImg (not .hero-media) so the portrait's
+   mix-blend-mode:multiply can still blend against the page background —
+   a transform/opacity on .hero-media would isolate it and reveal the
+   image's white backdrop. */
+.hero__badge, .hero__lead, .hero__actions, #heroImg, #heroFallback, .stat-strip {
   opacity: 0;
   animation: fadeUp 0.8s cubic-bezier(0.2,0.7,0.2,1) both;
 }
-.hero-media    { animation-delay: 0.20s; }
+#heroImg, #heroFallback { animation-delay: 0.20s; }
 .hero__badge   { animation-delay: 0.05s; }
 .hero__lead    { animation-delay: 0.46s; }
 .hero__actions { animation-delay: 0.58s; }
@@ -625,6 +629,6 @@ a { color: inherit; text-decoration: none; }
     scroll-behavior: auto !important;
   }
   .marquee__track { animation: none !important; }
-  .reveal, .hero__badge, .hero__lead, .hero__actions, .hero-media, .stat-strip { opacity: 1 !important; }
+  .reveal, .hero__badge, .hero__lead, .hero__actions, #heroImg, .stat-strip { opacity: 1 !important; }
   .hero__title .line > span { transform: none !important; }
 }
