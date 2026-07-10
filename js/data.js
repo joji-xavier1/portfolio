@@ -11,7 +11,7 @@ window.PORTFOLIO = {
 
   jobs: [
     { company: 'Appstation', role: 'Mid Flutter Developer', dates: 'Oct 2025 – Present', points: [
-      'Architecting the multi-tenant employee portal for the Qatar Olympic Committee (KDhoom) across mobile and web layers.',
+      'Architecting the multi-tenant employee portal for the Qatar Olympic Committee (Kadoom) across mobile and web layers.',
       'Deployed Riverpod to decouple asynchronous operational modules, improving localized data refresh patterns.',
       'Built a metadata-driven dynamic form engine and integrated an autonomous generative AI chatbot, cutting internal service response delays.'
     ]},
@@ -32,7 +32,7 @@ window.PORTFOLIO = {
   ],
 
   projects: [
-    { num: '01', badge: 'ENTERPRISE', name: 'KDhoom', client: 'Qatar Olympic Committee', blurb: 'Enterprise web + mobile portal unifying admin workflows, with a server-driven dynamic form system and an inline AI assistant powered by local LLM endpoints.', tags: ['Flutter', 'Riverpod', 'AI Chatbot', 'Dynamic Forms'] },
+    { num: '01', badge: 'ENTERPRISE', name: 'Kadoom', client: 'Qatar Olympic Committee', blurb: 'Enterprise web + mobile portal unifying admin workflows, with a server-driven dynamic form system and an inline AI assistant powered by local LLM endpoints.', tags: ['Flutter', 'Riverpod', 'AI Chatbot', 'Dynamic Forms'] },
     { num: '02', badge: 'HIGH-TRAFFIC', name: 'Bracketology', client: 'Fox Media', blurb: 'Official fantasy gaming infrastructure serving high concurrent traffic during tournaments, with real-time non-blocking live-score updates and verified billing.', tags: ['GetX', 'Bloc', 'AdMob', 'In-App Purchases'] },
     { num: '03', badge: 'LOGISTICS', name: 'Trackz', client: 'Vishwasamudra Engineering', blurb: 'Driver & supervisor ecosystem with real-time background geofencing to auto-log material drops, and offline-first sync over an encrypted SQLite queue.', tags: ['Geofencing', 'SQLite', 'REST APIs'] },
     { num: '04', badge: 'IoT', name: 'Culti Meter', client: 'IoT Companion App', blurb: 'Hardware companion monitoring live soil data streams, with native Kotlin/Swift bridges exchanging streaming binary telemetry over BLE / Wi-Fi.', tags: ['IoT', 'BLE / Wi-Fi', 'Custom Plugins'] },
