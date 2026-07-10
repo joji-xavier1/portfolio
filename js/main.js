@@ -28,22 +28,22 @@
   }
 
   function renderStack() {
-    setHtml('stackGrid', (data.stack || []).map(function (cat) {
+    setHtml('stackGrid', (data.stack || []).map(function (cat, i) {
       var chips = cat.items.map(function (chip) {
         return '<span class="chip">' + esc(chip) + '</span>';
       }).join('');
-      return '<div class="stack-cat">' +
+      return '<div class="stack-cat reveal" style="--i:' + i + '">' +
         '<div class="stack-cat__label">' + esc(cat.label) + '</div>' +
         '<div class="chips">' + chips + '</div></div>';
     }).join(''));
   }
 
   function renderJobs() {
-    setHtml('jobsList', (data.jobs || []).map(function (job) {
+    setHtml('jobsList', (data.jobs || []).map(function (job, i) {
       var points = job.points.map(function (pt) {
         return '<li>' + esc(pt) + '</li>';
       }).join('');
-      return '<div class="job-row reveal">' +
+      return '<div class="job-row reveal" style="--i:' + i + '">' +
         '<div><div class="job__company">' + esc(job.company) + '</div>' +
         '<div class="job__dates">' + esc(job.dates) + '</div></div>' +
         '<div class="job__role">' + esc(job.role) + '</div>' +
@@ -52,11 +52,11 @@
   }
 
   function renderProjects() {
-    setHtml('projectsGrid', (data.projects || []).map(function (p) {
+    setHtml('projectsGrid', (data.projects || []).map(function (p, i) {
       var tags = p.tags.map(function (t) {
         return '<span class="tag">' + esc(t) + '</span>';
       }).join('');
-      return '<div class="pcard reveal">' +
+      return '<div class="pcard reveal" style="--i:' + (i % 3) + '">' +
         '<div class="pcard__head">' +
         '<span class="pcard__num">' + esc(p.num) + '</span>' +
         '<span class="pcard__badge">' + esc(p.badge) + '</span></div>' +
@@ -86,12 +86,79 @@
     }, 4000);
   }
 
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Thin accent bar that tracks scroll progress.
+  function initProgressBar() {
+    var bar = document.createElement('div');
+    bar.className = 'progress';
+    document.body.appendChild(bar);
+    function update() {
+      var scrolled = window.scrollY || document.documentElement.scrollTop;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = 'scaleX(' + (max > 0 ? scrolled / max : 0) + ')';
+    }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+  }
+
+  // Count the hero stats up from zero when they scroll into view.
+  function initStatCountUp() {
+    var nums = Array.prototype.slice.call(document.querySelectorAll('.stat__num'));
+    if (!nums.length) return;
+
+    function run(el) {
+      var parsed = /^(\d+)(.*)$/.exec((el.textContent || '').trim());
+      if (!parsed) return;
+      var target = parseInt(parsed[1], 10);
+      var suffix = parsed[2];
+      if (reduceMotion) { el.textContent = target + suffix; return; }
+      var duration = 1200, start = null;
+      el.textContent = '0' + suffix;
+      function step(ts) {
+        if (start === null) start = ts;
+        var p = Math.min((ts - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      // Safety net: guarantee the final value even if rAF never runs.
+      setTimeout(function () { el.textContent = target + suffix; }, duration + 400);
+    }
+
+    if (!('IntersectionObserver' in window)) { nums.forEach(run); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { setTimeout(function () { run(e.target); }, 550); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.6 });
+    nums.forEach(function (el) { io.observe(el); });
+  }
+
+  // Soft accent glow that follows the cursor across project cards.
+  function initCardSpotlight() {
+    if (reduceMotion) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.pcard'), function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+      });
+    });
+  }
+
   function init() {
     renderMarquee();
     renderStack();
     renderJobs();
     renderProjects();
     initReveal();
+    initProgressBar();
+    initStatCountUp();
+    initCardSpotlight();
   }
 
   if (document.readyState === 'loading') {

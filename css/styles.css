@@ -45,7 +45,7 @@ a { color: inherit; text-decoration: none; }
 @keyframes rise    { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes marquee { from { transform: translateX(0); }               to { transform: translateX(-50%); } }
 .reveal      { opacity: 0; }
-.reveal.in   { animation: rise 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+.reveal.in   { animation: rise 0.7s cubic-bezier(0.2,0.7,0.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
 
 /* ---- Layout primitives ---- */
 .container {
@@ -532,4 +532,99 @@ a { color: inherit; text-decoration: none; }
   .nav-links a:not(.nav-cta) { display: none; }
   .about-grid { grid-template-columns: 1fr; gap: 20px; }
   .about-sub  { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   INTERACTIONS & ANIMATIONS
+   ============================================================ */
+
+/* Scroll progress bar */
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  z-index: 100;
+  will-change: transform;
+}
+
+/* Hero entrance — title lines rise from a clip mask */
+@keyframes lineUp { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+.hero__title .line { display: block; overflow: hidden; }
+.hero__title .line > span {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: lineUp 0.9s cubic-bezier(0.2,0.8,0.2,1) both;
+}
+.hero__title .line:nth-child(1) > span { animation-delay: 0.10s; }
+.hero__title .line:nth-child(2) > span { animation-delay: 0.22s; }
+.hero__title .line:nth-child(3) > span { animation-delay: 0.34s; }
+
+/* Hero entrance — supporting elements fade up on load */
+.hero__badge, .hero__lead, .hero__actions, .hero-media, .stat-strip {
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.2,0.7,0.2,1) both;
+}
+.hero-media    { animation-delay: 0.20s; }
+.hero__badge   { animation-delay: 0.05s; }
+.hero__lead    { animation-delay: 0.46s; }
+.hero__actions { animation-delay: 0.58s; }
+.stat-strip    { animation-delay: 0.68s; }
+
+/* Nav link underline */
+.navlink { position: relative; }
+.navlink::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 100%; height: 1.5px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.2,0.7,0.2,1);
+}
+.navlink:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Button hover lift */
+.btn { transition: transform 0.25s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.25s, border-color 0.25s, background 0.25s; }
+.btn--dark:hover, .btn--sm:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(23,24,28,0.55); }
+.btn--outline:hover { transform: translateY(-2px); border-color: var(--ink); }
+
+/* Marquee pauses on hover */
+.marquee:hover .marquee__track { animation-play-state: paused; }
+
+/* Project card — cursor-follow accent spotlight */
+.pcard { isolation: isolate; }
+.pcard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%),
+              color-mix(in oklab, var(--accent) 14%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+  z-index: -1;
+}
+.pcard:hover::before { opacity: 1; }
+.pcard__badge { transition: transform 0.35s cubic-bezier(0.2,0.7,0.2,1); }
+.pcard:hover .pcard__badge { transform: translateY(-2px) scale(1.04); }
+
+/* Reduced-motion: respect the user's OS setting */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee__track { animation: none !important; }
+  .reveal, .hero__badge, .hero__lead, .hero__actions, .hero-media, .stat-strip { opacity: 1 !important; }
+  .hero__title .line > span { transform: none !important; }
 }
