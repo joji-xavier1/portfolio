@@ -7,9 +7,14 @@ Built as a self-contained static page — no build step, no runtime dependencies
 ## Structure
 
 ```
-index.html        # the entire site (HTML + inline CSS + vanilla JS)
+index.html        # markup only (links the CSS + JS below)
+css/styles.css    # global styles, animations, responsive rules
+js/data.js        # site content — edit this to update stack / experience / projects
+js/main.js        # rendering + scroll-reveal interactions
 assets/joji.png   # hero portrait (optional — falls back to a "JX" monogram if absent)
 ```
+
+To update your content (jobs, projects, skills), edit **`js/data.js`** — no markup changes needed.
 
 ## Features
 
