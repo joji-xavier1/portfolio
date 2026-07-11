@@ -63,8 +63,42 @@
         '<h3 class="pcard__title">' + esc(p.name) + '</h3>' +
         '<div class="pcard__client">' + esc(p.client) + '</div>' +
         '<p class="pcard__blurb">' + esc(p.blurb) + '</p>' +
+        (p.outcome ? '<div class="pcard__outcome"><span class="pcard__outcome-label">IMPACT</span><span>' + esc(p.outcome) + '</span></div>' : '') +
         '<div class="pcard__tags">' + tags + '</div></div>';
     }).join(''));
+  }
+
+  function renderProcess() {
+    setHtml('processGrid', (data.process || []).map(function (step, i) {
+      return '<div class="step reveal" style="--i:' + i + '">' +
+        '<div class="step__num">' + esc(step.num) + '</div>' +
+        '<div class="step__title">' + esc(step.title) + '</div>' +
+        '<p class="step__text">' + esc(step.text) + '</p></div>';
+    }).join(''));
+  }
+
+  // Section stays hidden until data.js contains at least one quote.
+  function renderTestimonials() {
+    var items = data.testimonials || [];
+    var section = document.getElementById('testimonials');
+    if (!section || !items.length) return;
+    section.hidden = false;
+    setHtml('testimonialsGrid', items.map(function (t, i) {
+      return '<figure class="tcard reveal" style="--i:' + (i % 3) + '">' +
+        '<blockquote class="tcard__quote">“' + esc(t.quote) + '”</blockquote>' +
+        '<figcaption class="tcard__who"><b>' + esc(t.name) + '</b>' +
+        (t.role ? '<span>' + esc(t.role) + '</span>' : '') +
+        '</figcaption></figure>';
+    }).join(''));
+  }
+
+  // Reveal résumé buttons once data.js points at a PDF.
+  function initResumeLinks() {
+    if (!data.resumeUrl) return;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-resume]'), function (a) {
+      a.href = data.resumeUrl;
+      a.hidden = false;
+    });
   }
 
   // Reveal-on-scroll for elements with the .reveal class.
@@ -155,6 +189,9 @@
     renderStack();
     renderJobs();
     renderProjects();
+    renderProcess();
+    renderTestimonials();
+    initResumeLinks();
     initReveal();
     initProgressBar();
     initStatCountUp();
