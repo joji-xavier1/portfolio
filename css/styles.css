@@ -173,6 +173,7 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 26px;
 }
 .status-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -413,9 +414,11 @@ a { color: inherit; text-decoration: none; }
   border-radius: 22px;
   padding: clamp(24px, 2.6vw, 32px);
   overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.35s;
+  --lift: 0px;
+  transform: perspective(900px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg)) translate3d(0, var(--lift), 0);
+  transition: transform 0.2s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.35s;
 }
-.pcard:hover { transform: translateY(-6px); box-shadow: 0 24px 50px -24px rgba(23,24,28,0.35); }
+.pcard:hover { --lift: -6px; box-shadow: 0 28px 55px -24px rgba(23,24,28,0.4); }
 .pcard__head {
   display: flex;
   align-items: center;
@@ -715,6 +718,47 @@ a { color: inherit; text-decoration: none; }
 .pcard__badge { transition: transform 0.35s cubic-bezier(0.2,0.7,0.2,1); }
 .pcard:hover .pcard__badge { transform: translateY(-2px) scale(1.04); }
 
+/* Section titles wipe up into view on scroll */
+.js .reveal-title {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(0.4em);
+  opacity: 0;
+  transition: clip-path 0.85s cubic-bezier(0.2,0.8,0.2,1),
+              transform 0.85s cubic-bezier(0.2,0.8,0.2,1),
+              opacity 0.6s ease;
+}
+.js .reveal-title.in { clip-path: inset(0 0 -14% 0); transform: none; opacity: 1; }
+
+/* Nav scroll-spy — highlight the section you're in */
+.navlink.is-active { color: var(--ink); }
+.navlink.is-active::after { transform: scaleX(1); transform-origin: left; }
+
+/* "Available" status dot — soft outward pulse */
+.status-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: statusPulse 2.6s ease-out infinite;
+}
+@keyframes statusPulse {
+  0%        { transform: scale(1);   opacity: 0.55; }
+  70%, 100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Tech chips — lift + fill on hover */
+.chip {
+  transition: transform 0.25s cubic-bezier(0.2,0.7,0.2,1),
+              background 0.25s, border-color 0.25s, color 0.25s;
+}
+.chip:hover {
+  transform: translateY(-3px);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 /* Reduced-motion: respect the user's OS setting */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -726,4 +770,7 @@ a { color: inherit; text-decoration: none; }
   .marquee__track { animation: none !important; }
   .reveal, .hero__badge, .hero__lead, .hero__actions, #heroImg, .stat-strip { opacity: 1 !important; }
   .hero__title .line > span { transform: none !important; }
+  .reveal-title { opacity: 1 !important; clip-path: none !important; transform: none !important; }
+  .status-dot::after { animation: none !important; }
+  .pcard { transform: none !important; }
 }

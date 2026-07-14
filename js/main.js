@@ -172,15 +172,74 @@
     nums.forEach(function (el) { io.observe(el); });
   }
 
-  // Soft accent glow that follows the cursor across project cards.
+  // Cursor-follow accent glow + subtle 3D tilt on project cards.
   function initCardSpotlight() {
     if (reduceMotion) return;
     Array.prototype.forEach.call(document.querySelectorAll('.pcard'), function (card) {
       card.addEventListener('mousemove', function (e) {
         var r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-        card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+        var px = (e.clientX - r.left) / r.width;
+        var py = (e.clientY - r.top) / r.height;
+        card.style.setProperty('--mx', (px * 100) + '%');
+        card.style.setProperty('--my', (py * 100) + '%');
+        card.style.setProperty('--rx', ((px - 0.5) * 9).toFixed(2) + 'deg');
+        card.style.setProperty('--ry', ((0.5 - py) * 9).toFixed(2) + 'deg');
       });
+      card.addEventListener('mouseleave', function () {
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  // Highlight the nav link for the section currently in view.
+  function initScrollSpy() {
+    var map = Array.prototype.slice
+      .call(document.querySelectorAll('.navlink[href^="#"]'))
+      .map(function (a) { return { link: a, sec: document.querySelector(a.getAttribute('href')) }; })
+      .filter(function (m) { return m.sec; });
+    if (!map.length) return;
+    function update() {
+      var pos = (window.scrollY || document.documentElement.scrollTop) + 150;
+      var current = null;
+      map.forEach(function (m) { if (m.sec.offsetTop <= pos) current = m; });
+      map.forEach(function (m) { m.link.classList.toggle('is-active', m === current); });
+    }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+  }
+
+  // Section titles wipe up from a clip mask as they scroll into view.
+  function initTitleReveal() {
+    var titles = Array.prototype.slice.call(
+      document.querySelectorAll('.section-title, .contact-title'));
+    titles.forEach(function (t) { t.classList.add('reveal-title'); });
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      titles.forEach(function (t) { t.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.35 });
+    titles.forEach(function (t) { io.observe(t); });
+    // Safety net: never leave a title hidden.
+    setTimeout(function () { titles.forEach(function (t) { t.classList.add('in'); }); }, 4000);
+  }
+
+  // Hero CTAs gently pull toward the cursor (magnetic effect).
+  function initMagnetic() {
+    if (reduceMotion) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.hero__actions .btn'), function (btn) {
+      btn.addEventListener('mousemove', function (e) {
+        var r = btn.getBoundingClientRect();
+        var x = (e.clientX - r.left - r.width / 2) * 0.25;
+        var y = (e.clientY - r.top - r.height / 2) * 0.4;
+        btn.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+      });
+      btn.addEventListener('mouseleave', function () { btn.style.transform = ''; });
     });
   }
 
@@ -196,6 +255,9 @@
     initProgressBar();
     initStatCountUp();
     initCardSpotlight();
+    initScrollSpy();
+    initTitleReveal();
+    initMagnetic();
   }
 
   if (document.readyState === 'loading') {
